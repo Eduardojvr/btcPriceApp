@@ -59,7 +59,7 @@ public class BitcoinPriceWorkerNotification extends Worker {
                     @Override
                     public void onSuccess(double price) {
                         setValorReal(price);
-                        if ((getValorReal()*getValorBtc()) >= 400000) {
+//                        if ((getValorReal()*getValorBtc()) <= 400000) {
                             // Criação do canal de notificação para Android 8.0+
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW);
@@ -79,7 +79,7 @@ public class BitcoinPriceWorkerNotification extends Worker {
 
                             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                             notificationManager.notify(1, builder.build());
-                        }
+//                        }
 
                     }
 

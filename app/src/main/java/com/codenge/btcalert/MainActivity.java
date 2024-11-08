@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 
 import android.app.NotificationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,11 +19,16 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.codenge.btcalert.Util.FormatadorMoeda;
+import com.codenge.btcalert.entity.Prediction;
 import com.codenge.btcalert.scheduled.Agendador;
 import com.codenge.btcalert.service.BitcoinPriceWorkerNotification;
 import com.codenge.btcalert.service.DolarRealService;
 import com.codenge.btcalert.service.FetchBitcoinPriceService;
+import com.codenge.btcalert.service.PredictBtcService;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,13 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     public double[] valorDolar = new double[1];
     public double[] valorBtc = new double[1];
-    private EditText editMenor;
-    private EditText editMaior;
-    private Button salvarMenor;
-    private Button salvarMaior;
-    private TextView valorAtual;
     private TextView bitcoinPriceTextView;
     private Agendador periodicTaskScheduler;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable predictionRunnable;
 
     @SuppressLint("MissingPermission")
     @Override
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // Cria e inicia o agendador para executar a cada 5 segundos (5000 ms)
+        // Cria e inicia o agendador para executar a cada 5 segundos (5000 ms) - Worker da notificação
         periodicTaskScheduler = new Agendador(fetchBitcoinPriceTask, 500);
         periodicTaskScheduler.start();
 
@@ -118,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
 //
 //
 //    }
+
+
     public void retornaValor(){
 
         // Executa a `AsyncTask` para buscar o preço do Bitcoin
@@ -139,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(double price) {
                 valorDolar[0] = price;
 
-                bitcoinPriceTextView.setText(FormatadorMoeda.formatToBRL(valorDolar[0] * valorBtc[0]));
+                bitcoinPriceTextView.setText(FormatadorMoeda.formatToBRL(1 * valorBtc[0]));
             }
 
             @Override
@@ -151,4 +157,60 @@ public class MainActivity extends AppCompatActivity {
         }).execute();
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Cria o Runnable que chama PredictBtcService a cada 10 segundos
+        predictionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // Inicia a PredictBtcService
+                new PredictBtcService(new PredictBtcService.Callback() {
+                    @Override
+                    public void onSuccess(List<Prediction> result) {
+                        // Trate o sucesso da previsão, por exemplo, atualizando a UI
+                        updateUIWithPredictions(result);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Trate o erro, como mostrar um log ou mensagem de erro
+                        e.printStackTrace();
+                    }
+                }).execute();
+
+                // Reagenda o Runnable após 10 segundos (10000 ms)
+                handler.postDelayed(this, 10000);
+            }
+        };
+
+        // Inicia o primeiro chamado
+        handler.post(predictionRunnable); // Executa imediatamente pela primeira vez
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Remove callbacks quando a atividade é parada para evitar vazamentos de memória
+        handler.removeCallbacks(predictionRunnable);
+    }
+
+    private void updateUIWithPredictions(List<Prediction> predictions) {
+        // Atualize a UI com a lista de previsões, por exemplo, exiba em um TextView
+        TextView textPredict = findViewById(R.id.textPredict);
+        StringBuilder builder = new StringBuilder();
+        for (Prediction prediction : predictions) {
+            builder.append(prediction.getPredictedDate())
+                    .append(" | ")
+                    .append(prediction.getPredictedHour())
+                    .append(" | ")
+                    .append(prediction.getPredictedPrice())
+                    .append("\n");
+        }
+        textPredict.setText(builder);
+    }
+
 }

@@ -5,9 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
+    android:gravity="center"
     android:orientation="vertical"
     android:padding="20dp"
-    android:gravity="center"
     tools:context=".MainActivity">
 
     <TextView
@@ -16,6 +17,7 @@
         android:layout_height="wrap_content"
         android:text="Valor Atual"
         android:textAllCaps="true"
+        android:textColor="#FDFDFD"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -23,9 +25,27 @@
         android:id="@+id/valorAtual"
         android:layout_width="308dp"
         android:layout_height="184dp"
+        android:gravity="center"
         android:textAllCaps="true"
         android:textColor="#4CAF50"
-        android:gravity="center"
         android:textSize="32sp" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PREDIÇÕES"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textPredict"
+        android:layout_width="match_parent"
+        android:layout_height="261dp"
+        android:paddingTop="10dp"
+        android:textColor="#8BC34A"
+        android:textSize="14dp" />
+
 </LinearLayout>
+

@@ -9,7 +9,9 @@ import java.net.URL;
 
 public class FetchBitcoinPriceService extends AsyncTask<Void, Void, Double> {
 
-    private static final String API_URL = "https://api.coindesk.com/v1/bpi/currentprice/BTC.json";
+//    private static final String API_URL = "https://api.coindesk.com/v1/bpi/currentprice/BTC.json";
+        private static final String API_URL = "https://cointradermonitor.com/api/pbb/v1/ticker";
+
     private final Callback callback;
     private Exception error;
 
@@ -44,8 +46,8 @@ public class FetchBitcoinPriceService extends AsyncTask<Void, Void, Double> {
             // Converte a resposta para JSON
             JSONObject jsonResponse = new JSONObject(content.toString());
             // Extrai o valor do preço do Bitcoin em USD
-            return jsonResponse.getJSONObject("bpi").getJSONObject("USD").getDouble("rate_float");
-
+//            return jsonResponse.getJSONObject("bpi").getJSONObject("USD").getDouble("rate_float");
+            return jsonResponse.getDouble("last");
         } catch (Exception e) {
             error = e;
             return null;

@@ -58,7 +58,7 @@ public class BitcoinPriceWorkerNotification extends Worker {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(double price) {
-                        setValorReal(price);
+                        setValorReal(1);
 //                        if ((getValorReal()*getValorBtc()) <= 400000) {
                             // Criação do canal de notificação para Android 8.0+
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
